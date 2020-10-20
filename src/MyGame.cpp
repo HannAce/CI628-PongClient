@@ -20,7 +20,7 @@ void MyGame::send(std::string message) {
 
 // Controls to move the bat up and down
 void MyGame::input(SDL_Event& event) {
-    if (isPlayer1 && canPickPlayer) {
+    if (isPlayer1 && canPickPlayer == false) {
         switch (event.key.keysym.sym) {
         case SDLK_w:
             send(event.type == SDL_KEYDOWN ? "W_DOWN" : "W_UP");
@@ -30,7 +30,7 @@ void MyGame::input(SDL_Event& event) {
             break;
         }
     }
-    else if (isPlayer2 && canPickPlayer) {
+    else if (isPlayer2 && canPickPlayer == false) {
         switch (event.key.keysym.sym) {
         case SDLK_i:
             send(event.type == SDL_KEYDOWN ? "I_DOWN" : "I_UP");
@@ -50,7 +50,7 @@ void MyGame::input(SDL_Event& event) {
 // assigns player 1 or 2 depending on input at start of game
 bool MyGame::assignPlayer(SDL_Event& event) {
 
-    if (canPickPlayer) {    
+    if (canPickPlayer) {
         switch (event.key.keysym.sym) {
         case SDLK_1:
             isPlayer1 = true;
