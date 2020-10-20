@@ -16,8 +16,15 @@ static struct GameData {
 
 class MyGame {
 
+    bool isPlayer1 = false;
+    bool isPlayer2 = false;
+    bool canPickPlayer = true;
+
     private:
-        SDL_Rect player1 = { 0, 0, 20, 60 };
+        SDL_Rect player1 = { 200, 0, 20, 60 };
+        SDL_Rect player2 = { 580, 0, 20, 60 };
+
+        SDL_Rect ball{ 0, 0, 20, 20 };
 
     public:
         std::vector<std::string> messages;
@@ -27,6 +34,8 @@ class MyGame {
         void input(SDL_Event& event);
         void update();
         void render(SDL_Renderer* renderer);
+
+        bool assignPlayer(SDL_Event& event);
 };
 
 #endif
