@@ -9,7 +9,7 @@ const Uint16 PORT = 55555;
 
 bool is_running = true;
 
-MyGame* game = new MyGame();
+MyGame* game;
 
 static int on_receive(void* socket_ptr) {
     TCPsocket socket = (TCPsocket)socket_ptr;
@@ -40,7 +40,9 @@ static int on_receive(void* socket_ptr) {
             }
         }
 
-        game->on_receive(cmd, args);
+        if (game != nullptr) {
+            game->on_receive(cmd, args);
+        }
 
         if (cmd == "exit") {
             break;
@@ -55,18 +57,20 @@ static int on_send(void* socket_ptr) {
     TCPsocket socket = (TCPsocket)socket_ptr;
 
     while (is_running) {
-        if (game->messages.size() > 0) {
-            string message = "CLIENT_DATA";
+        if (game != nullptr) {
+            if (game->messages.size() > 0) {
+                string message = "CLIENT_DATA";
 
-            for (auto m : game->messages) {
-                message += "," + m;
+                for (auto m : game->messages) {
+                    message += "," + m;
+                }
+
+                game->messages.clear();
+
+                cout << "Sending_TCP: " << message << endl;
+
+                SDLNet_TCP_Send(socket, message.c_str(), message.length());
             }
-
-            game->messages.clear();
-
-            cout << "Sending_TCP: " << message << endl;
-
-            SDLNet_TCP_Send(socket, message.c_str(), message.length());
         }
 
         SDL_Delay(1);
@@ -126,6 +130,7 @@ int run_game() {
     }
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    game = new MyGame(renderer);
 
     if (nullptr == renderer) {
         std::cout << "Failed to create renderer" << SDL_GetError() << std::endl;
