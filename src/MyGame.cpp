@@ -1,8 +1,18 @@
 #include "MyGame.h"
 
+MyGame::MyGame(SDL_Renderer* renderer) {
+    batTexture = loadTexture(renderer, "res/bat.png");
+    ballTexture = loadTexture(renderer, "res/ball.png");
+    score0Texture = loadTexture(renderer, "res/Score0.png");
+    score1Texture = loadTexture(renderer, "res/Score1.png");
+    score2Texture = loadTexture(renderer, "res/Score2.png");
+    score3Texture = loadTexture(renderer, "res/Score3.png");
+}
+
 void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
+
     if (cmd == "GAME_DATA") {
-        // we should have exactly 4 arguments
+        // should have exactly 4 arguments
         if (args.size() == 4) {
             game_data.player1Y = stoi(args.at(0));
             game_data.player2Y = stoi(args.at(1));
@@ -11,15 +21,24 @@ void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
         }
     } else {
         std::cout << "Received: " << cmd << std::endl;
+        for (int i = 0; i < args.size(); i++) {
+            std::cout << "Received: " << args.at(i) << std::endl;
+        }
+    }
+    if (args.size() >= 2) {
+        std::string score1 = args.at(0);
+        std::string score2 = args.at(1);
     }
 }
 
 void MyGame::send(std::string message) {
+
     messages.push_back(message);
 }
 
-// Controls to move the bat up and down
+// Controls to move the bat up and down depending on which player
 void MyGame::input(SDL_Event& event) {
+    
     if (isPlayer1 && canPickPlayer == false) {
         switch (event.key.keysym.sym) {
         case SDLK_w:
@@ -72,6 +91,7 @@ bool MyGame::assignPlayer(SDL_Event& event) {
 }
 
 void MyGame::update() {
+    
     player1.y = game_data.player1Y;
     player2.y = game_data.player2Y;
     ball.x = game_data.ballX;
@@ -79,8 +99,31 @@ void MyGame::update() {
 }
 
 void MyGame::render(SDL_Renderer* renderer) {
+
+    //TTF_Font* font = TTF_OpenFont("", 20);
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(renderer, &player1);
+    //SDL_RenderDrawRect(renderer, &player1);
     SDL_RenderDrawRect(renderer, &player2);
     SDL_RenderDrawRect(renderer, &ball);
+    drawTexture(renderer, batTexture, &player1, SDL_FLIP_NONE);
+
+    //drawText(score1, 20, 20, font);
+    //drawText(score2, 80, 80, font);
 }
+
+// Loads textures to add to the game
+SDL_Texture* MyGame::loadTexture(SDL_Renderer* renderer, std::string fileName) {
+    SDL_Texture* newTexture = NULL;
+    SDL_Surface* loadedSurface = IMG_Load(fileName.c_str());
+    newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+    return newTexture;
+}
+
+// Draws textures to the screen
+void MyGame::drawTexture(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect* dst, SDL_RendererFlip flip) {
+    SDL_RenderCopyEx(renderer, texture, 0, dst, 0.0, 0, flip);
+}
+
+//void MyGame::drawText(const std::string& text, const int& x, const int& y, TTF_Font* font) {
