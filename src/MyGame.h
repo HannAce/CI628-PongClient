@@ -3,13 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include <string>
-
-#ifndef __MY_GAME_H__
-#define __MY_GAME_H__
-
-#include <iostream>
-#include <vector>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <string>
@@ -37,8 +30,8 @@ private:
 
     SDL_Rect ball = { 0, 0, 20, 20 };
 
-    SDL_Rect scoreP1 = { 50, 50, 50, 50 };
-    SDL_Rect scoreP2 = { 0, 0, 500, 30 };
+    SDL_Rect scoreP1 = { 500, 70, 110, 120 };
+    SDL_Rect scoreP2 = { 200, 70, 110, 120 };
 
     // Textures
     SDL_Texture* batTexture;
