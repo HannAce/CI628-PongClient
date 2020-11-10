@@ -7,6 +7,10 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     score1Texture = loadTexture(renderer, "res/Score1.png");
     score2Texture = loadTexture(renderer, "res/Score2.png");
     score3Texture = loadTexture(renderer, "res/Score3.png");
+    
+    if (score0Texture != nullptr) {
+        std::cout << "loaded texture" << std::endl;
+    }
 }
 
 void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
@@ -102,11 +106,12 @@ void MyGame::render(SDL_Renderer* renderer) {
 
     //TTF_Font* font = TTF_OpenFont("", 20);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    //SDL_RenderDrawRect(renderer, &player1);
-    SDL_RenderDrawRect(renderer, &player2);
-    SDL_RenderDrawRect(renderer, &ball);
     drawTexture(renderer, batTexture, &player1, SDL_FLIP_NONE);
+    drawTexture(renderer, batTexture, &player2, SDL_FLIP_NONE);
+    drawTexture(renderer, ballTexture, &ball, SDL_FLIP_NONE);
+    drawTexture(renderer, score0Texture, &scoreP1, SDL_FLIP_NONE);
+    drawTexture(renderer, score0Texture, &scoreP2, SDL_FLIP_NONE);
+    
 
     //drawText(score1, 20, 20, font);
     //drawText(score2, 80, 80, font);
