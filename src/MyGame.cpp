@@ -1,6 +1,9 @@
 #include "MyGame.h"
 
 MyGame::MyGame(SDL_Renderer* renderer) {
+
+    TTF_Font* font1 = TTF_OpenFont("res/Goldman-Bold.ttf", 30);
+
     batTexture = loadTexture(renderer, "res/bat.png");
     ballTexture = loadTexture(renderer, "res/ball.png");
     score0Texture = loadTexture(renderer, "res/Score0.png");
@@ -8,7 +11,11 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     score2Texture = loadTexture(renderer, "res/Score2.png");
     score3Texture = loadTexture(renderer, "res/Score3.png");
     
-    if (score0Texture != nullptr) {
+    // Check assets have loaded
+    if (font1 != nullptr) {
+        std::cout << "loaded font" << std::endl;
+    }
+    if (batTexture != nullptr) {
         std::cout << "loaded texture" << std::endl;
     }
 }
@@ -25,13 +32,13 @@ void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
         }
     } else {
         std::cout << "Received: " << cmd << std::endl;
-        for (int i = 0; i < args.size(); i++) {
-            std::cout << "Received: " << args.at(i) << std::endl;
-        }
+        //for (int i = 0; i < args.size(); i++) {
+           // std::cout << "Received: " << args.at(i) << std::endl;
+       // }
     }
-    if (args.size() >= 2) {
-        std::string score1 = args.at(0);
-        std::string score2 = args.at(1);
+    if (cmd == "SCORES" && args.size() == 2) {
+        game_data.score1 = (args.at(0));
+        game_data.score2 = args.at(1);
     }
 }
 
@@ -100,11 +107,12 @@ void MyGame::update() {
     player2.y = game_data.player2Y;
     ball.x = game_data.ballX;
     ball.y = game_data.ballY;
+
+   // std::cout << game_data.score1 << std::endl;
+   // std::cout << game_data.score2 << std::endl;
 }
 
 void MyGame::render(SDL_Renderer* renderer) {
-
-    //TTF_Font* font = TTF_OpenFont("", 20);
 
     drawTexture(renderer, batTexture, &player1, SDL_FLIP_NONE);
     drawTexture(renderer, batTexture, &player2, SDL_FLIP_NONE);
@@ -113,8 +121,8 @@ void MyGame::render(SDL_Renderer* renderer) {
     drawTexture(renderer, score0Texture, &scoreP2, SDL_FLIP_NONE);
     
 
-    //drawText(score1, 20, 20, font);
-    //drawText(score2, 80, 80, font);
+    //drawText(renderer, game_data.score1, 20, 20, font1);
+    //drawText(renderer, game_data.score2, 80, 80, font1);
 }
 
 // Loads textures to add to the game
@@ -131,4 +139,29 @@ void MyGame::drawTexture(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect*
     SDL_RenderCopyEx(renderer, texture, 0, dst, 0.0, 0, flip);
 }
 
-//void MyGame::drawText(const std::string& text, const int& x, const int& y, TTF_Font* font) {
+// Draws text to the screen
+void MyGame::drawText(SDL_Renderer* renderer, const std::string& text, const int& x, const int& y, TTF_Font* font, SDL_Color colour) {
+    SDL_Texture* textTexture = createTextureFromString(renderer, text, font, colour);
+    int w, h;
+    SDL_QueryTexture(textTexture, 0, 0, &w, &h);
+    SDL_Rect dst = { x, y, w, h };
+    drawTexture(renderer, textTexture, &scoreP1, SDL_FLIP_NONE);
+    SDL_DestroyTexture(textTexture);
+}
+
+// Turns strings into textures to be drawn to screen
+SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour) {
+    SDL_Texture* textTexture = nullptr;
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), colour);
+    if (textSurface != nullptr) {
+        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        SDL_FreeSurface(textSurface);
+    }
+    else {
+        std::cout << "Failed to create texture from string: " << text << std::endl;
+        std::cout << TTF_GetError() << std::endl;
+    }
+
+    return textTexture;
+    
+}
