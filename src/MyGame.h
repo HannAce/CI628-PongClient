@@ -15,6 +15,9 @@ static struct GameData {
     int player2Y = 0;
     int ballX = 0;
     int ballY = 0;
+
+    std::string score1 = "0";
+    std::string score2 = "0";
 } game_data;
 
 class MyGame {
@@ -36,6 +39,7 @@ private:
     // Textures
     SDL_Texture* batTexture;
     SDL_Texture* ballTexture;
+
     SDL_Texture* score0Texture;
     SDL_Texture* score1Texture;
     SDL_Texture* score2Texture;
@@ -59,7 +63,8 @@ public:
         // Textures
         SDL_Texture* loadTexture(SDL_Renderer* renderer, std::string fileName);
         void drawTexture(SDL_Renderer*, SDL_Texture* texture, SDL_Rect* dst, SDL_RendererFlip flip);
-        //void drawText(const std::string& text, const int& x, const int& y, TTF_Font* font);
+        void drawText(SDL_Renderer* renderer, const std::string& text, const int& x, const int& y, TTF_Font* font, SDL_Color colour);
+        SDL_Texture* createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour);
     
 };
 
