@@ -4,18 +4,18 @@ MyGame::MyGame(SDL_Renderer* renderer) {
 
     TTF_Font* font1 = TTF_OpenFont("res/Goldman-Bold.ttf", 30);
 
-    batTexture = loadTexture(renderer, "res/bat.png");
-    ballTexture = loadTexture(renderer, "res/ball.png");
+    batP1Texture = loadTexture(renderer, "res/batP1.png");
+    batP2Texture = loadTexture(renderer, "res/batP2.png");
+    ballP1Texture = loadTexture(renderer, "res/ballP1.png");
+    ballP2Texture = loadTexture(renderer, "res/ballP2.png");
+    ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png");
     score0Texture = loadTexture(renderer, "res/Score0.png");
-    score1Texture = loadTexture(renderer, "res/Score1.png");
-    score2Texture = loadTexture(renderer, "res/Score2.png");
-    score3Texture = loadTexture(renderer, "res/Score3.png");
     
     // Check assets have loaded
     if (font1 != nullptr) {
         std::cout << "loaded font" << std::endl;
     }
-    if (batTexture != nullptr) {
+    if (batP1Texture != nullptr) {
         std::cout << "loaded texture" << std::endl;
     }
 }
@@ -114,15 +114,25 @@ void MyGame::update() {
 
 void MyGame::render(SDL_Renderer* renderer) {
 
-    drawTexture(renderer, batTexture, &player1, SDL_FLIP_NONE);
-    drawTexture(renderer, batTexture, &player2, SDL_FLIP_NONE);
-    drawTexture(renderer, ballTexture, &ball, SDL_FLIP_NONE);
+    drawTexture(renderer, batP1Texture, &player1, SDL_FLIP_NONE);
+    drawTexture(renderer, batP2Texture, &player2, SDL_FLIP_NONE);
+
+    if (game_data.score1 > game_data.score2) {
+        drawTexture(renderer, ballP1Texture, &ball, SDL_FLIP_NONE);
+    }
+    else if (game_data.score2 > game_data.score1) {
+        drawTexture(renderer, ballP2Texture, &ball, SDL_FLIP_NONE);
+    }
+    else {
+        drawTexture(renderer, ballNeutralTexture, &ball, SDL_FLIP_NONE);
+    }
+
     drawTexture(renderer, score0Texture, &scoreP1, SDL_FLIP_NONE);
     drawTexture(renderer, score0Texture, &scoreP2, SDL_FLIP_NONE);
     
 
-    //drawText(renderer, game_data.score1, 20, 20, font1);
-    //drawText(renderer, game_data.score2, 80, 80, font1);
+    //drawText(renderer, game_data.score1, 20, 20, font1, blue);
+    //drawText(renderer, game_data.score2, 80, 80, font1, red);
 }
 
 // Loads textures to add to the game
@@ -163,5 +173,4 @@ SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::
     }
 
     return textTexture;
-    
-}
+} 
