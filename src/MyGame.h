@@ -37,13 +37,26 @@ private:
     SDL_Rect scoreP2 = { 200, 70, 110, 120 };
 
     // Textures
-    SDL_Texture* batTexture;
-    SDL_Texture* ballTexture;
+    SDL_Texture* batP1Texture;
+    SDL_Texture* batP2Texture;
+    SDL_Texture* ballP1Texture;
+    SDL_Texture* ballP2Texture;
+    SDL_Texture* ballNeutralTexture;
 
     SDL_Texture* score0Texture;
-    SDL_Texture* score1Texture;
-    SDL_Texture* score2Texture;
-    SDL_Texture* score3Texture;
+
+    // Fonts
+    TTF_Font* font1;
+
+    // Colours
+    Uint8 r;
+    Uint8 g;
+    Uint8 b;
+    Uint8 a;
+
+    const SDL_Color blue = { r = 0, g = 0, b = 255, a = 255 };
+    const SDL_Color red = { r = 255, g = 0, b = 0, a = 255 };
+    const SDL_Color white = { r = 255, g = 255, b = 255, a = 255 };
 
 public:
     // default Constructor
