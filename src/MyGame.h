@@ -31,10 +31,10 @@ private:
     SDL_Rect player1 = { 200, 0, 20, 60 };
     SDL_Rect player2 = { 580, 0, 20, 60 };
 
-    SDL_Rect ball = { 0, 0, 20, 20 };
+    SDL_Rect ball = { 0, 0, 15, 15 };
 
-    SDL_Rect scoreP1 = { 500, 70, 110, 120 };
-    SDL_Rect scoreP2 = { 200, 70, 110, 120 };
+    SDL_Rect scoreP1 = { 200, 70, 110, 120 };
+    SDL_Rect scoreP2 = { 580, 70, 110, 120 };
 
     // Textures
     SDL_Texture* batP1Texture;
@@ -42,8 +42,6 @@ private:
     SDL_Texture* ballP1Texture;
     SDL_Texture* ballP2Texture;
     SDL_Texture* ballNeutralTexture;
-
-    SDL_Texture* score0Texture;
 
     // Fonts
     TTF_Font* font1;
@@ -54,8 +52,8 @@ private:
     Uint8 b;
     Uint8 a;
 
-    const SDL_Color blue = { r = 0, g = 0, b = 255, a = 255 };
-    const SDL_Color red = { r = 255, g = 0, b = 0, a = 255 };
+    const SDL_Color blue = { r = 75, g = 75, b = 255, a = 255 };
+    const SDL_Color red = { r = 255, g = 85, b = 85, a = 255 };
     const SDL_Color white = { r = 255, g = 255, b = 255, a = 255 };
 
 public:
