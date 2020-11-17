@@ -2,15 +2,16 @@
 
 MyGame::MyGame(SDL_Renderer* renderer) {
 
-    TTF_Font* font1 = TTF_OpenFont("res/Goldman-Bold.ttf", 30);
+    font1 = TTF_OpenFont("res/Goldman-Bold.ttf", 30);
 
     batP1Texture = loadTexture(renderer, "res/batP1.png");
     batP2Texture = loadTexture(renderer, "res/batP2.png");
     ballP1Texture = loadTexture(renderer, "res/ballP1.png");
     ballP2Texture = loadTexture(renderer, "res/ballP2.png");
     ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png");
-    score0Texture = loadTexture(renderer, "res/Score0.png");
+
     
+
     // Check assets have loaded
     if (font1 != nullptr) {
         std::cout << "loaded font" << std::endl;
@@ -30,7 +31,8 @@ void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
             game_data.ballX = stoi(args.at(2));
             game_data.ballY = stoi(args.at(3));
         }
-    } else {
+    }
+    else {
         std::cout << "Received: " << cmd << std::endl;
         //for (int i = 0; i < args.size(); i++) {
            // std::cout << "Received: " << args.at(i) << std::endl;
@@ -49,7 +51,7 @@ void MyGame::send(std::string message) {
 
 // Controls to move the bat up and down depending on which player
 void MyGame::input(SDL_Event& event) {
-    
+
     if (isPlayer1 && canPickPlayer == false) {
         switch (event.key.keysym.sym) {
         case SDLK_w:
@@ -102,17 +104,21 @@ bool MyGame::assignPlayer(SDL_Event& event) {
 }
 
 void MyGame::update() {
-    
+
     player1.y = game_data.player1Y;
     player2.y = game_data.player2Y;
     ball.x = game_data.ballX;
     ball.y = game_data.ballY;
 
-   // std::cout << game_data.score1 << std::endl;
-   // std::cout << game_data.score2 << std::endl;
+    // std::cout << game_data.score1 << std::endl;
+    // std::cout << game_data.score2 << std::endl;
 }
 
 void MyGame::render(SDL_Renderer* renderer) {
+
+    if (canPickPlayer) {
+        drawText(renderer, "Please press 1 or 2 to pick a player.", 0, 0, font1, white);
+    }
 
     drawTexture(renderer, batP1Texture, &player1, SDL_FLIP_NONE);
     drawTexture(renderer, batP2Texture, &player2, SDL_FLIP_NONE);
@@ -127,12 +133,8 @@ void MyGame::render(SDL_Renderer* renderer) {
         drawTexture(renderer, ballNeutralTexture, &ball, SDL_FLIP_NONE);
     }
 
-    //drawTexture(renderer, score0Texture, &scoreP1, SDL_FLIP_NONE);
-    //drawTexture(renderer, score0Texture, &scoreP2, SDL_FLIP_NONE);
-    
-
-    drawText(renderer, game_data.score1, 20, 20, font1, blue); // TODO: Fix exception
-    drawText(renderer, game_data.score2, 80, 80, font1, red); // TODO: Fix exception
+    drawText(renderer, "Player 1: " + game_data.score1, 20, 70, font1, blue);
+    drawText(renderer, "Player 2: " + game_data.score2, 560, 70, font1, red);
 }
 
 // Loads textures to add to the game
@@ -155,22 +157,22 @@ void MyGame::drawText(SDL_Renderer* renderer, const std::string& text, const int
     int w, h;
     SDL_QueryTexture(textTexture, 0, 0, &w, &h);
     SDL_Rect dst = { x, y, w, h };
-    drawTexture(renderer, textTexture, &scoreP1, SDL_FLIP_NONE);
+    drawTexture(renderer, textTexture, &dst, SDL_FLIP_NONE);
     SDL_DestroyTexture(textTexture);
 }
 
 // Turns strings into textures to be drawn to screen
 SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour) {
     SDL_Texture* textTexture = nullptr;
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), colour); // Exception occurs when drawText is called
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), colour);
     if (textSurface != nullptr) {
         textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         SDL_FreeSurface(textSurface);
     }
     else {
-        std::cout << "Failed to create texture from string: " << text << std::endl;
+        std::cout << "Could not create texture from string: " << text << std::endl;
         std::cout << TTF_GetError() << std::endl;
     }
 
     return textTexture;
-} 
+}
