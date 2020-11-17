@@ -127,12 +127,12 @@ void MyGame::render(SDL_Renderer* renderer) {
         drawTexture(renderer, ballNeutralTexture, &ball, SDL_FLIP_NONE);
     }
 
-    drawTexture(renderer, score0Texture, &scoreP1, SDL_FLIP_NONE);
-    drawTexture(renderer, score0Texture, &scoreP2, SDL_FLIP_NONE);
+    //drawTexture(renderer, score0Texture, &scoreP1, SDL_FLIP_NONE);
+    //drawTexture(renderer, score0Texture, &scoreP2, SDL_FLIP_NONE);
     
 
-    //drawText(renderer, game_data.score1, 20, 20, font1, blue);
-    //drawText(renderer, game_data.score2, 80, 80, font1, red);
+    drawText(renderer, game_data.score1, 20, 20, font1, blue); // TODO: Fix exception
+    drawText(renderer, game_data.score2, 80, 80, font1, red); // TODO: Fix exception
 }
 
 // Loads textures to add to the game
@@ -162,7 +162,7 @@ void MyGame::drawText(SDL_Renderer* renderer, const std::string& text, const int
 // Turns strings into textures to be drawn to screen
 SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour) {
     SDL_Texture* textTexture = nullptr;
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), colour);
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), colour); // Exception occurs when drawText is called
     if (textSurface != nullptr) {
         textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         SDL_FreeSurface(textSurface);
