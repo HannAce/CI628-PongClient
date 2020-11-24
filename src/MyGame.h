@@ -28,8 +28,8 @@ class MyGame {
 
 private:
     // Rectangles
-    SDL_Rect player1 = { 200, 0, 20, 60 };
-    SDL_Rect player2 = { 580, 0, 20, 60 };
+    SDL_Rect player1 = { 200, 0, 20, 80 };
+    SDL_Rect player2 = { 580, 0, 20, 80 };
 
     SDL_Rect ball = { 0, 0, 15, 15 };
 
