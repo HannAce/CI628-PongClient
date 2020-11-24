@@ -135,6 +135,13 @@ void MyGame::render(SDL_Renderer* renderer) {
 
     drawText(renderer, "Player 1: " + game_data.score1, 20, 70, font1, blue);
     drawText(renderer, "Player 2: " + game_data.score2, 560, 70, font1, red);
+
+    if (game_data.score1 == "10") {
+        drawText(renderer, "Player 1 wins.", 0, 0, font1, white);
+    }
+    else if (game_data.score2 == "10") {
+        drawText(renderer, "Player 2 wins.", 0, 0, font1, white);
+    }
 }
 
 // Loads textures to add to the game
