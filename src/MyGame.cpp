@@ -4,13 +4,16 @@ MyGame::MyGame(SDL_Renderer* renderer) {
 
     font1 = TTF_OpenFont("res/Goldman-Bold.ttf", 30);
 
-    batP1Texture = loadTexture(renderer, "res/bat1.png");
-    batP2Texture = loadTexture(renderer, "res/bat2.png");
+    backgroundP1Texture = loadTexture(renderer, "res/backgroundP1.png");
+    backgroundP2Texture = loadTexture(renderer, "res/backgroundP2.png");
+    backgroundNeutralTexture = loadTexture(renderer, "res/backgroundNeutral.png");
+    batP1Texture = loadTexture(renderer, "res/batTest.png");
+    batP2Texture = loadTexture(renderer, "res/batTest2.png");
     ballP1Texture = loadTexture(renderer, "res/ballP1.png");
     ballP2Texture = loadTexture(renderer, "res/ballP2.png");
     ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png"); 
 
-    SDL_Texture* textures[5] = { batP1Texture, batP2Texture, ballP1Texture, ballP2Texture, ballNeutralTexture };
+    SDL_Texture* textures[] = { backgroundP1Texture, backgroundP2Texture, backgroundNeutralTexture, batP1Texture, batP2Texture, ballP1Texture, ballP2Texture, ballNeutralTexture };
 
     // Check font has loaded
     if (font1 != nullptr) {
@@ -142,26 +145,29 @@ void MyGame::update() {
 
 void MyGame::render(SDL_Renderer* renderer) {
 
+    // different coloured ball depending on which player is leading
+    if (game_data.score1 > game_data.score2 || player1Win) {
+        drawTexture(renderer, backgroundP1Texture, &background, SDL_FLIP_NONE);
+        drawTexture(renderer, ballP1Texture, &ball, SDL_FLIP_NONE);
+    }
+    else if (game_data.score2 > game_data.score1 || player2Win) {
+        drawTexture(renderer, backgroundP2Texture, &background, SDL_FLIP_NONE);
+        drawTexture(renderer, ballP2Texture, &ball, SDL_FLIP_NONE);
+    }
+    else {
+        drawTexture(renderer, backgroundNeutralTexture, &background, SDL_FLIP_NONE);
+        drawTexture(renderer, ballNeutralTexture, &ball, SDL_FLIP_NONE);
+    }
+
     if (canPickPlayer && !player1Win && !player2Win) {
         drawText(renderer, "Please press 1 or 2 to pick a player.", 0, 0, font1, white);
     }
 
     drawText(renderer, "Player 1: " + game_data.score1, 20, 70, font1, blue);
-    drawText(renderer, "Player 2: " + game_data.score2, 560, 70, font1, red);
+    drawText(renderer, "Player 2: " + game_data.score2, 580, 70, font1, red);
 
     drawTexture(renderer, batP1Texture, &player1, SDL_FLIP_NONE);
     drawTexture(renderer, batP2Texture, &player2, SDL_FLIP_NONE);
-
-    // different coloured ball depending on which player is leading
-    if (game_data.score1 > game_data.score2 || player1Win) {
-        drawTexture(renderer, ballP1Texture, &ball, SDL_FLIP_NONE);
-    }
-    else if (game_data.score2 > game_data.score1 || player2Win) {
-        drawTexture(renderer, ballP2Texture, &ball, SDL_FLIP_NONE);
-    }
-    else {
-        drawTexture(renderer, ballNeutralTexture, &ball, SDL_FLIP_NONE);
-    }
 
     if (player1Win) {
         drawText(renderer, "Player 1 wins!", 0, 0, font1, white);
