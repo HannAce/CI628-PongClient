@@ -40,6 +40,7 @@ static int on_receive(void* socket_ptr) {
             }
         }
 
+        // Safety net to check pointer before running
         if (game != nullptr) {
             game->on_receive(cmd, args);
         }
@@ -57,6 +58,7 @@ static int on_send(void* socket_ptr) {
     TCPsocket socket = (TCPsocket)socket_ptr;
 
     while (is_running) {
+        // Safety net to check pointer before running
         if (game != nullptr) {
             if (game->messages.size() > 0) {
                 string message = "CLIENT_DATA";
@@ -130,7 +132,7 @@ int run_game() {
     }
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    game = new MyGame(renderer);
+    game = new MyGame(renderer); // Have game use renderer for loading textures
 
     if (nullptr == renderer) {
         std::cout << "Failed to create renderer" << SDL_GetError() << std::endl;
@@ -154,6 +156,12 @@ int main(int argc, char** argv) {
     if (SDLNet_Init() == -1) {
         printf("SDLNet_Init: %s\n", SDLNet_GetError());
         exit(2);
+    }
+
+    // Initialise TTF Engine
+    if (TTF_Init() == -1) {
+        printf("TTF_Init: %s\n", SDL_GetError());
+        exit(1);
     }
 
     IPaddress ip;
