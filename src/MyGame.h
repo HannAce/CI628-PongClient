@@ -21,6 +21,24 @@ static struct GameData {
     std::string score2 = "0";
 } game_data;
 
+
+class Particle {
+public:
+    double x;
+    double y;
+
+    int size;
+
+    SDL_Color colour;
+
+    // Default constructor
+    Particle(int x, int y, int size, SDL_Color colour);
+
+    //void drawParticle(SDL_Renderer* renderer);
+    
+};
+
+
 class MyGame {
 
     bool isPlayer1 = false;
@@ -42,17 +60,24 @@ private:
     SDL_Texture* backgroundP1Texture;
     SDL_Texture* backgroundP2Texture;
     SDL_Texture* backgroundNeutralTexture;
+
     SDL_Texture* batP1Texture;
     SDL_Texture* batP2Texture;
+
     SDL_Texture* ballP1Texture;
     SDL_Texture* ballP2Texture;
     SDL_Texture* ballNeutralTexture;
+
+    // Particles
+    std::vector<Particle*> particles;
 
     // Fonts
     TTF_Font* font1;
 
     // Audio
-    
+    Mix_Chunk* pingSFX;
+    Mix_Chunk* pongSFX;
+    Mix_Chunk* victorySFX;
 
     // Colours
     Uint8 r;
@@ -60,10 +85,10 @@ private:
     Uint8 b;
     Uint8 a;
 
+    const SDL_Color black = { r = 0, g = 0, b = 0, a = 255 };
     const SDL_Color blue = { r = 0, g = 190, b = 255, a = 255 };
     const SDL_Color red = { r = 255, g = 85, b = 50, a = 255 };
     const SDL_Color white = { r = 255, g = 255, b = 255, a = 255 };
-    const SDL_Color black = { r = 0, g = 0, b = 0, a = 255 };
 
 public:
     // default Constructor
@@ -88,8 +113,8 @@ public:
         void drawText(SDL_Renderer* renderer, const std::string& text, const int& x, const int& y, TTF_Font* font, SDL_Color colour);
         SDL_Texture* createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour);
 
-        // Audio
-        //void playSound();
+        // Particle Effects
+        //void drawParticles(SDL_Renderer* renderer, SDL_Rect rect, SDL_Color colour);
     
 };
 
