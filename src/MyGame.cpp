@@ -1,5 +1,6 @@
 #include "MyGame.h"
 
+// Particle constructor
 Particle::Particle(int x, int y, int size, SDL_Color colour) {
     this->x = x;
     this->y = y;
@@ -7,6 +8,12 @@ Particle::Particle(int x, int y, int size, SDL_Color colour) {
     this->colour = colour;
 }
 
+// ~Particle deconstructor
+Particle::~Particle() {
+
+}
+
+// MyGame constructor
 MyGame::MyGame(SDL_Renderer* renderer) {
 
     // Load and check font
@@ -34,12 +41,14 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     pongSFX = Mix_LoadWAV("res/audio/pong.wav");
     victorySFX = Mix_LoadWAV("res/audio/victory.wav");
 
-    if (pingSFX != nullptr && pongSFX != nullptr && victorySFX != nullptr) {
-        std::cout << "Loaded sounds" << std::endl;
-    }
-    else {
-        std::cout << "Unable to load sound" << std::endl;
-        printf("Mix_LoadWAV: %s\n", Mix_GetError()); // handle error
+    for (int i = 0; i < 3; i++) {
+        if (soundFX[i] != nullptr) {
+            std::cout << "Loaded sound " << i << std::endl;
+        }
+        else {
+            std::cout << "Unable to load sound" << std::endl;
+            printf("Mix_LoadWAV: %s\n", Mix_GetError()); // handle error
+        }
     }
 
     // Load and check textures
@@ -51,11 +60,8 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     ballP1Texture = loadTexture(renderer, "res/ballP1.png");
     ballP2Texture = loadTexture(renderer, "res/ballP2.png");
     ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png"); 
-
-    SDL_Texture* textures[] = { backgroundP1Texture, backgroundP2Texture, backgroundNeutralTexture, batP1Texture, batP2Texture, ballP1Texture,
-        ballP2Texture, ballNeutralTexture };
     
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 7; i++) {
         if (textures[i] != nullptr) {
             std::cout << "Loaded texture " << i << std::endl;
         }
@@ -82,6 +88,15 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     }*/
 }
 
+// ~MyGame deconstructor - Closes/destroys any objects when game closes for memory management
+MyGame::~MyGame() {
+    TTF_CloseFont(font1);
+    Mix_CloseAudio();
+    for (int i = 0; i < 8; i++) {
+        SDL_DestroyTexture(textures[i]);
+    }
+}
+
 // on_receive Function
 void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
 
@@ -104,24 +119,25 @@ void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
         game_data.score2 = args.at(1);
     }
 
+    // Play sound when ball hits bat
     if (cmd == "BALL_HIT_BAT1" || cmd == "BALL_HIT_BAT2") {
-        // Play sound when ball hits bat
         if (Mix_PlayChannel(-1, pingSFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
         }
     }
 
+    // Play sound when ball hits left or right wall (goal)
     if (cmd == "HIT_WALL_LEFTGAME_DATA" || cmd == "HIT_WALL_RIGHTGAME_DATA") {
-        // Play sound when ball hits left or right wall (goal)
         if (Mix_PlayChannel(-1, pongSFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
         }
     }
 
+    // Play victory sound when game is won
     if (cmd == "GAME_WONP1HIT_WALL_RIGHTGAME_DATA" || cmd == "GAME_WONP2HIT_WALL_LEFTGAME_DATA") {
-        // Play victory sound when game is won
         if (Mix_PlayChannel(-1, victorySFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
+            // Potentially remove playerWin function and set here instead?
         }
     }
 }
@@ -212,12 +228,15 @@ void MyGame::update() {
 // render Function: renders any assets and draws to screen
 void MyGame::render(SDL_Renderer* renderer) {
 
+    int score1 = std::stoi(game_data.score1);
+    int score2 = std::stoi(game_data.score2);
+
     // different coloured ball depending on which player is leading
-    if (game_data.score1 > game_data.score2 || player1Win) {
+    if (score1 > score2 || player1Win) {
         drawTexture(renderer, backgroundP1Texture, &background, SDL_FLIP_NONE);
         drawTexture(renderer, ballP1Texture, &ball, SDL_FLIP_NONE);
     }
-    else if (game_data.score2 > game_data.score1 || player2Win) {
+    else if (score2 > score1 || player2Win) {
         drawTexture(renderer, backgroundP2Texture, &background, SDL_FLIP_NONE);
         drawTexture(renderer, ballP2Texture, &ball, SDL_FLIP_NONE);
     }
@@ -236,19 +255,18 @@ void MyGame::render(SDL_Renderer* renderer) {
     drawTexture(renderer, batP1Texture, &player1, SDL_FLIP_NONE);
     drawTexture(renderer, batP2Texture, &player2, SDL_FLIP_NONE);
 
-    /*for (auto p : particles) {
-        SDL_Rect particleRect { p->x, p->y, p->size, p->size };
-        SDL_SetRenderDrawColor(renderer, p->colour.r, p->colour.g, p->colour.b, p->colour.a);
-        SDL_RenderFillRect(renderer, &particleRect);
-    }*/
-
-
     if (player1Win) {
         drawText(renderer, "Player 1 wins!", 0, 0, font1, white);
     }
     else if (player2Win) {
         drawText(renderer, "Player 2 wins!", 0, 0, font1, white);
     }
+
+    /*for (auto p : particles) {
+        SDL_Rect particleRect { p->x, p->y, p->size, p->size };
+        SDL_SetRenderDrawColor(renderer, p->colour.r, p->colour.g, p->colour.b, p->colour.a);
+        SDL_RenderFillRect(renderer, &particleRect);
+    }*/
 }
 
 // Texture and Text functions written with reference to Almas Baimagambetov, https://github.com/AlmasB/xcube2d, under the GNU General Public License v2.0
@@ -291,3 +309,18 @@ SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::
 
     return textTexture;
 }
+
+//void MyGame::drawParticles(SDL_Renderer* renderer, SDL_Rect rect, SDL_Color colour) {
+
+//}
+
+
+
+//void Particle::drawParticles(SDL_Renderer* renderer) {
+//
+//    Particle p(x, y, size, colour);
+//    SDL_Rect particleRect = { p.x, p.y, p.size, p.size };
+//
+//    SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
+//    SDL_RenderFillRect(renderer, &particleRect);
+//}
