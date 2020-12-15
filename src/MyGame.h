@@ -34,6 +34,9 @@ public:
     // Default constructor
     Particle(int x, int y, int size, SDL_Color colour);
 
+    // Deconstructor
+    ~Particle();
+
     //void drawParticle(SDL_Renderer* renderer);
     
 };
@@ -68,6 +71,9 @@ private:
     SDL_Texture* ballP2Texture;
     SDL_Texture* ballNeutralTexture;
 
+    SDL_Texture* textures[8] = { backgroundP1Texture, backgroundP2Texture, backgroundNeutralTexture, batP1Texture, batP2Texture,
+        ballP1Texture, ballP2Texture, ballNeutralTexture };
+
     // Particles
     std::vector<Particle*> particles;
 
@@ -78,6 +84,8 @@ private:
     Mix_Chunk* pingSFX;
     Mix_Chunk* pongSFX;
     Mix_Chunk* victorySFX;
+
+    Mix_Chunk* soundFX[3] = { pingSFX, pongSFX, victorySFX };
 
     // Colours
     Uint8 r;
@@ -93,6 +101,9 @@ private:
 public:
     // default Constructor
     MyGame(SDL_Renderer* renderer);
+
+    // deconstructor
+    ~MyGame();
 
         std::vector<std::string> messages;
 
