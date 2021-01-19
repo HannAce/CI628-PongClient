@@ -27,18 +27,18 @@ public:
     double x;
     double y;
 
+    double velocityX;
+    double velocityY;
+
     int size;
+
+    double life;
 
     SDL_Color colour;
 
-    // Default constructor
-    Particle(int x, int y, int size, SDL_Color colour);
+    Particle(double x, double y, double velocityX, double velocityY, int size, SDL_Color colour);
 
-    // Deconstructor
     ~Particle();
-
-    //void drawParticle(SDL_Renderer* renderer);
-    
 };
 
 
@@ -99,10 +99,8 @@ private:
     const SDL_Color white = { r = 255, g = 255, b = 255, a = 255 };
 
 public:
-    // default Constructor
     MyGame(SDL_Renderer* renderer);
 
-    // deconstructor
     ~MyGame();
 
         std::vector<std::string> messages;
@@ -112,6 +110,8 @@ public:
         void input(SDL_Event& event);
         void update();
         void render(SDL_Renderer* renderer);
+
+        double getRandomValue();
 
         // Player
         bool assignPlayer(SDL_Event& event);
@@ -124,9 +124,7 @@ public:
         void drawText(SDL_Renderer* renderer, const std::string& text, const int& x, const int& y, TTF_Font* font, SDL_Color colour);
         SDL_Texture* createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour);
 
-        // Particle Effects
-        //void drawParticles(SDL_Renderer* renderer, SDL_Rect rect, SDL_Color colour);
-    
+           
 };
 
 #endif
