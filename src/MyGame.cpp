@@ -1,19 +1,19 @@
 #include "MyGame.h"
 
-// Particle constructor
-Particle::Particle(int x, int y, int size, SDL_Color colour) {
+Particle::Particle(double x, double y, double velocityX, double velocityY, int size, SDL_Color colour) {
     this->x = x;
     this->y = y;
+    this->velocityX = velocityX;
+    this->velocityY = velocityY;
     this->size = size;
+    this->life = 1.0 * 5;
     this->colour = colour;
 }
 
-// ~Particle deconstructor
 Particle::~Particle() {
 
 }
 
-// MyGame constructor
 MyGame::MyGame(SDL_Renderer* renderer) {
 
     // Load and check font
@@ -55,8 +55,8 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     backgroundP1Texture = loadTexture(renderer, "res/backgroundP1.png");
     backgroundP2Texture = loadTexture(renderer, "res/backgroundP2.png");
     backgroundNeutralTexture = loadTexture(renderer, "res/backgroundNeutral.png");
-    batP1Texture = loadTexture(renderer, "res/batTest.png");
-    batP2Texture = loadTexture(renderer, "res/batTest2.png");
+    batP1Texture = loadTexture(renderer, "res/bat1.png");
+    batP2Texture = loadTexture(renderer, "res/bat2.png");
     ballP1Texture = loadTexture(renderer, "res/ballP1.png");
     ballP2Texture = loadTexture(renderer, "res/ballP2.png");
     ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png"); 
@@ -71,33 +71,29 @@ MyGame::MyGame(SDL_Renderer* renderer) {
         }
     }
 
-    /*for (int i = 0; i < 1000; i++) {
+    // Particles
+    srand(1000);
 
-        int x = 0;
-        int y = 0;
+    for (int i = 0; i < 1000; i++) {
 
-        double randomValue = rand() * 1.0 / RAND_MAX;
-        Uint8 randomColour = randomValue * 255;
-        particles.push_back(new Particle(x, y, 20, { randomColour, 123, 70, 255 }));
+        double spawnPoint = getRandomValue() * 5;
 
-        x++;
+        double velocityX = getRandomValue() - 0.5;
+        double velocityY = -1 * getRandomValue();
 
-        if (x == 800) {
-            y++;
-        }
-    }*/
+        particles.push_back(new Particle(400 + spawnPoint, 300 + spawnPoint, velocityX, velocityY, 1, red));
+    }
 }
 
-// ~MyGame deconstructor - Closes/destroys any objects when game closes for memory management
+// Closes/destroys any objects when game closes for memory management
 MyGame::~MyGame() {
     TTF_CloseFont(font1);
     Mix_CloseAudio();
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
         SDL_DestroyTexture(textures[i]);
     }
 }
 
-// on_receive Function
 void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
 
     if (cmd == "GAME_DATA") {
@@ -137,18 +133,22 @@ void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
     if (cmd == "GAME_WONP1HIT_WALL_RIGHTGAME_DATA" || cmd == "GAME_WONP2HIT_WALL_LEFTGAME_DATA") {
         if (Mix_PlayChannel(-1, victorySFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
-            // Potentially remove playerWin function and set here instead?
+        }
+        if (cmd == "GAME_WONP1HIT_WALL_RIGHTGAME_DATA") {
+       
+        }
+        else if ("GAME_WONP2HIT_WALL_LEFTGAME_DATA") {
+            
         }
     }
 }
 
-// send Function
 void MyGame::send(std::string message) {
 
     messages.push_back(message);
 }
 
-// input Function: Controls to move the bat up and down depending on which player
+// Controls to move the bat up and down depending on which player
 void MyGame::input(SDL_Event& event) {
 
     if (isPlayer1 && canPickPlayer == false) {
@@ -175,7 +175,7 @@ void MyGame::input(SDL_Event& event) {
     assignPlayer(event);
 }
 
-// assignPlayer Function: assigns player 1 or 2 depending on user input
+// Assigns player 1 or 2 depending on user input
 bool MyGame::assignPlayer(SDL_Event& event) {
 
     if (canPickPlayer) {
@@ -199,7 +199,7 @@ bool MyGame::assignPlayer(SDL_Event& event) {
     }
 }
 
-// playerWin Function: Checks which player wins and returns appropriate boolean
+// Checks which player wins and returns appropriate boolean
 bool MyGame::playerWin() {
     if (game_data.score1 == "10") {
         player1Win = true;
@@ -214,7 +214,6 @@ bool MyGame::playerWin() {
     }
 }
 
-// update Function: runs each frame and updates the game
 void MyGame::update() {
 
     player1.y = game_data.player1Y;
@@ -223,9 +222,21 @@ void MyGame::update() {
     ball.y = game_data.ballY;
 
     playerWin();
+
+    for (auto particle : particles) {
+        particle->x += particle->velocityX;
+        particle->y += particle->velocityY;
+        particle->life -= 0.016;
+
+        if (particle->life <= 0.0) {
+            particle->colour.a = 0;
+        }
+        else {
+            particle->colour.a = (Uint8)((particle->life / 5.0) * 255);
+        }
+    }
 }
 
-// render Function: renders any assets and draws to screen
 void MyGame::render(SDL_Renderer* renderer) {
 
     int score1 = std::stoi(game_data.score1);
@@ -262,15 +273,23 @@ void MyGame::render(SDL_Renderer* renderer) {
         drawText(renderer, "Player 2 wins!", 0, 0, font1, white);
     }
 
-    /*for (auto p : particles) {
-        SDL_Rect particleRect { p->x, p->y, p->size, p->size };
-        SDL_SetRenderDrawColor(renderer, p->colour.r, p->colour.g, p->colour.b, p->colour.a);
+    // Particles
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
+
+    for (auto particle : particles) {
+        SDL_Rect particleRect = { (int) particle->x, (int) particle->y, particle->size * 2, particle->size * 2 };
+
+        SDL_SetRenderDrawColor(renderer, particle->colour.r, particle->colour.g, particle->colour.b, particle->colour.a);
         SDL_RenderFillRect(renderer, &particleRect);
-    }*/
+    }  
 }
 
-// Texture and Text functions written with reference to Almas Baimagambetov, https://github.com/AlmasB/xcube2d, under the GNU General Public License v2.0
-// loadTexture Function: Loads textures to add to the game
+double MyGame::getRandomValue() {
+    return rand() * 1.0 / RAND_MAX;
+}
+
+// Texture and Text functions written with reference to Almas Baimagambetov, https://github.com/AlmasB/xcube2d,
+// under the GNU General Public License v2.0
 SDL_Texture* MyGame::loadTexture(SDL_Renderer* renderer, std::string fileName) {
     SDL_Texture* newTexture = NULL;
     SDL_Surface* surface = IMG_Load(fileName.c_str());
@@ -279,12 +298,10 @@ SDL_Texture* MyGame::loadTexture(SDL_Renderer* renderer, std::string fileName) {
     return newTexture;
 }
 
-// drawTexture Function: Draws textures to the screen
 void MyGame::drawTexture(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Rect* dst, SDL_RendererFlip flip) {
     SDL_RenderCopyEx(renderer, texture, 0, dst, 0.0, 0, flip);
 }
 
-// drawText Function: Draws text to the screen
 void MyGame::drawText(SDL_Renderer* renderer, const std::string& text, const int& x, const int& y, TTF_Font* font, SDL_Color colour) {
     SDL_Texture* textTexture = createTextureFromString(renderer, text, font, colour);
     int w, h;
@@ -294,7 +311,6 @@ void MyGame::drawText(SDL_Renderer* renderer, const std::string& text, const int
     SDL_DestroyTexture(textTexture); // Memory management
 }
 
-// createTextureFromString Function: Turns strings into textures to be drawn to screen
 SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour) {
     SDL_Texture* textTexture = nullptr;
     SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), colour);
@@ -310,17 +326,3 @@ SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::
     return textTexture;
 }
 
-//void MyGame::drawParticles(SDL_Renderer* renderer, SDL_Rect rect, SDL_Color colour) {
-
-//}
-
-
-
-//void Particle::drawParticles(SDL_Renderer* renderer) {
-//
-//    Particle p(x, y, size, colour);
-//    SDL_Rect particleRect = { p.x, p.y, p.size, p.size };
-//
-//    SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
-//    SDL_RenderFillRect(renderer, &particleRect);
-//}
