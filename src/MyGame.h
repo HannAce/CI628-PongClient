@@ -30,15 +30,17 @@ public:
     double velocityX;
     double velocityY;
 
+    double accelerateX;
+    double accelerateY;
+
     int size;
 
     double life;
 
     SDL_Color colour;
 
-    Particle(double x, double y, double velocityX, double velocityY, int size, SDL_Color colour);
-
-    ~Particle();
+    Particle(double x, double y, double velocityX, double velocityY, double accelerateX, double accelerateY,
+        int size, SDL_Color colour);
 };
 
 
@@ -95,7 +97,7 @@ private:
 
     const SDL_Color black = { r = 0, g = 0, b = 0, a = 255 };
     const SDL_Color blue = { r = 0, g = 190, b = 255, a = 255 };
-    const SDL_Color red = { r = 255, g = 85, b = 50, a = 255 };
+    const SDL_Color red = { r = 255, g = 1, b = 1, a = 255 };
     const SDL_Color white = { r = 255, g = 255, b = 255, a = 255 };
 
 public:
@@ -124,6 +126,9 @@ public:
         void drawText(SDL_Renderer* renderer, const std::string& text, const int& x, const int& y, TTF_Font* font, SDL_Color colour);
         SDL_Texture* createTextureFromString(SDL_Renderer* renderer, const std::string& text, TTF_Font* font, SDL_Color colour);
 
+        //Particles
+        void drawParticles(SDL_Renderer* renderer);
+        void particleLife();
            
 };
 
