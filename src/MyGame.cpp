@@ -1,17 +1,16 @@
 #include "MyGame.h"
 
-Particle::Particle(double x, double y, double velocityX, double velocityY, int size, SDL_Color colour) {
+Particle::Particle(double x, double y, double velocityX, double velocityY, double accelerateX, double accelerateY,
+    int size, SDL_Color colour) {
     this->x = x;
     this->y = y;
     this->velocityX = velocityX;
     this->velocityY = velocityY;
+    this->accelerateX = accelerateX;
+    this->accelerateY = accelerateY;
     this->size = size;
-    this->life = 1.0 * 5;
+    this->life = 1.0;
     this->colour = colour;
-}
-
-Particle::~Particle() {
-
 }
 
 MyGame::MyGame(SDL_Renderer* renderer) {
@@ -59,8 +58,8 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     batP2Texture = loadTexture(renderer, "res/bat2.png");
     ballP1Texture = loadTexture(renderer, "res/ballP1.png");
     ballP2Texture = loadTexture(renderer, "res/ballP2.png");
-    ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png"); 
-    
+    ballNeutralTexture = loadTexture(renderer, "res/ballNeutral.png");
+
     for (int i = 0; i < 7; i++) {
         if (textures[i] != nullptr) {
             std::cout << "Loaded texture " << i << std::endl;
@@ -70,22 +69,8 @@ MyGame::MyGame(SDL_Renderer* renderer) {
             printf("loadTexture: %s\n", SDL_GetError()); // handle error
         }
     }
-
-    // Particles
-    srand(1000);
-
-    for (int i = 0; i < 1000; i++) {
-
-        double spawnPoint = getRandomValue() * 5;
-
-        double velocityX = getRandomValue() - 0.5;
-        double velocityY = -1 * getRandomValue();
-
-        particles.push_back(new Particle(400 + spawnPoint, 300 + spawnPoint, velocityX, velocityY, 1, red));
-    }
 }
 
-// Closes/destroys any objects when game closes for memory management
 MyGame::~MyGame() {
     TTF_CloseFont(font1);
     Mix_CloseAudio();
@@ -115,30 +100,24 @@ void MyGame::on_receive(std::string cmd, std::vector<std::string>& args) {
         game_data.score2 = args.at(1);
     }
 
-    // Play sound when ball hits bat
     if (cmd == "BALL_HIT_BAT1" || cmd == "BALL_HIT_BAT2") {
+        // Play sound when ball hits bat
         if (Mix_PlayChannel(-1, pingSFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
         }
     }
 
-    // Play sound when ball hits left or right wall (goal)
     if (cmd == "HIT_WALL_LEFTGAME_DATA" || cmd == "HIT_WALL_RIGHTGAME_DATA") {
+        // Play sound when ball hits left or right wall
         if (Mix_PlayChannel(-1, pongSFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
         }
     }
 
-    // Play victory sound when game is won
     if (cmd == "GAME_WONP1HIT_WALL_RIGHTGAME_DATA" || cmd == "GAME_WONP2HIT_WALL_LEFTGAME_DATA") {
+        // Play victory sound when game is won
         if (Mix_PlayChannel(-1, victorySFX, 0) == -1) {
             printf("Mix_PlayChannel: %s\n", Mix_GetError()); // handle error
-        }
-        if (cmd == "GAME_WONP1HIT_WALL_RIGHTGAME_DATA") {
-       
-        }
-        else if ("GAME_WONP2HIT_WALL_LEFTGAME_DATA") {
-            
         }
     }
 }
@@ -222,17 +201,26 @@ void MyGame::update() {
     ball.y = game_data.ballY;
 
     playerWin();
+    particleLife();
 
-    for (auto particle : particles) {
-        particle->x += particle->velocityX;
-        particle->y += particle->velocityY;
-        particle->life -= 0.016;
+    double velocityX = getRandomValue() * 0.5;
+    double velocityY = -1 * getRandomValue();
 
-        if (particle->life <= 0.0) {
-            particle->colour.a = 0;
+    double accelerateX = (getRandomValue() - 0.5) * 0.05;
+    double accelerateY = -0.1 * getRandomValue();
+
+    for (int i = 0; i < 100; i++) {
+        if (player1Win) {
+            particles.push_back(new Particle(250 + getRandomValue(), 300 + getRandomValue(), velocityX, velocityY, accelerateX,
+                accelerateY, 1, blue));
+            particles.push_back(new Particle(550 + getRandomValue(), 300 + getRandomValue(), velocityX, velocityY, accelerateX,
+                accelerateY, 1, blue));
         }
-        else {
-            particle->colour.a = (Uint8)((particle->life / 5.0) * 255);
+        else if (player2Win) {
+            particles.push_back(new Particle(250 + getRandomValue(), 300 + getRandomValue(), velocityX, velocityY, accelerateX,
+                accelerateY, 1, red));
+            particles.push_back(new Particle(550 + getRandomValue(), 300 + getRandomValue(), velocityX, velocityY, accelerateX,
+                accelerateY, 1, red));
         }
     }
 }
@@ -267,21 +255,13 @@ void MyGame::render(SDL_Renderer* renderer) {
     drawTexture(renderer, batP2Texture, &player2, SDL_FLIP_NONE);
 
     if (player1Win) {
-        drawText(renderer, "Player 1 wins!", 0, 0, font1, white);
+        drawText(renderer, "Player 1 wins!", 285, 280, font1, white);
+        drawParticles(renderer);
     }
     else if (player2Win) {
-        drawText(renderer, "Player 2 wins!", 0, 0, font1, white);
+        drawText(renderer, "Player 2 wins!", 285, 280, font1, white);
+        drawParticles(renderer);
     }
-
-    // Particles
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
-
-    for (auto particle : particles) {
-        SDL_Rect particleRect = { (int) particle->x, (int) particle->y, particle->size * 2, particle->size * 2 };
-
-        SDL_SetRenderDrawColor(renderer, particle->colour.r, particle->colour.g, particle->colour.b, particle->colour.a);
-        SDL_RenderFillRect(renderer, &particleRect);
-    }  
 }
 
 double MyGame::getRandomValue() {
@@ -324,5 +304,35 @@ SDL_Texture* MyGame::createTextureFromString(SDL_Renderer* renderer, const std::
     }
 
     return textTexture;
+}
+
+void MyGame::drawParticles(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
+
+    for (auto particle : particles) {
+        SDL_Rect particleRect = { (int)particle->x, (int)particle->y, particle->size * 2, particle->size * 2 };
+
+        SDL_SetRenderDrawColor(renderer, particle->colour.r, particle->colour.g, particle->colour.b, particle->colour.a);
+        SDL_RenderFillRect(renderer, &particleRect);
+    }
+}
+
+void MyGame::particleLife() {
+    for (auto particle : particles) {
+        particle->x += particle->velocityX;
+        particle->y += particle->velocityY;
+
+        particle->velocityX += particle->accelerateX;
+        particle->velocityY += particle->accelerateY;
+
+        particle->life -= 0.016;
+
+        if (particle->life <= 0.0) {
+            particle->colour.a = 0;
+        }
+        else {
+            particle->colour.a = (Uint8)((particle->life / 1.0) * 255);
+        }
+    }
 }
 
