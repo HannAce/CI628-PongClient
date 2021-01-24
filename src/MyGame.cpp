@@ -127,7 +127,6 @@ void MyGame::send(std::string message) {
     messages.push_back(message);
 }
 
-// Controls to move the bat up and down depending on which player
 void MyGame::input(SDL_Event& event) {
 
     if (isPlayer1 && canPickPlayer == false) {
@@ -137,6 +136,12 @@ void MyGame::input(SDL_Event& event) {
             break;
         case SDLK_s:
             send(event.type == SDL_KEYDOWN ? "S_DOWN" : "S_UP");
+            break;
+        case SDLK_i:
+            send("Wrong input, pleae use Player 1 controls: W and S");
+            break;
+        case SDLK_k:
+            send("Wrong input, pleae use Player 1 controls: W and S");
             break;
         }
     }
@@ -148,13 +153,18 @@ void MyGame::input(SDL_Event& event) {
         case SDLK_k:
             send(event.type == SDL_KEYDOWN ? "K_DOWN" : "K_UP");
             break;
+        case SDLK_w:
+            send("Wrong input, pleae use Player 2 controls: I and K");
+            break;
+        case SDLK_s:
+            send("Wrong input, pleae use Player 2 controls: I and K");
+            break;
         }
     }
 
     assignPlayer(event);
 }
 
-// Assigns player 1 or 2 depending on user input
 bool MyGame::assignPlayer(SDL_Event& event) {
 
     if (canPickPlayer) {
@@ -178,7 +188,6 @@ bool MyGame::assignPlayer(SDL_Event& event) {
     }
 }
 
-// Checks which player wins and returns appropriate boolean
 bool MyGame::playerWin() {
     if (game_data.score1 == "10") {
         player1Win = true;
@@ -230,7 +239,7 @@ void MyGame::render(SDL_Renderer* renderer) {
     int score1 = std::stoi(game_data.score1);
     int score2 = std::stoi(game_data.score2);
 
-    // different coloured ball depending on which player is leading
+    // different coloured ball depending on which player is winning
     if (score1 > score2 || player1Win) {
         drawTexture(renderer, backgroundP1Texture, &background, SDL_FLIP_NONE);
         drawTexture(renderer, ballP1Texture, &ball, SDL_FLIP_NONE);
