@@ -36,9 +36,9 @@ MyGame::MyGame(SDL_Renderer* renderer) {
     }
 
     // Load and check sounds
-    pingSFX = Mix_LoadWAV("res/audio/ping.wav");
-    pongSFX = Mix_LoadWAV("res/audio/pong.wav");
-    victorySFX = Mix_LoadWAV("res/audio/victory.wav");
+    pingSFX = Mix_LoadWAV("res/audio/ping.wav"); // Audio from cabled_mess, https://freesound.org/people/cabled_mess/sounds/370844/
+    pongSFX = Mix_LoadWAV("res/audio/pong.wav"); // Audio from n_audioman, https://freesound.org/people/n_audioman/sounds/273766/
+    victorySFX = Mix_LoadWAV("res/audio/victory.wav"); // Audio from Higgs01, https://freesound.org/people/Higgs01/sounds/428156/
 
     for (int i = 0; i < 3; i++) {
         if (soundFX[i] != nullptr) {
@@ -138,10 +138,10 @@ void MyGame::input(SDL_Event& event) {
             send(event.type == SDL_KEYDOWN ? "S_DOWN" : "S_UP");
             break;
         case SDLK_i:
-            send("Wrong input, pleae use Player 1 controls: W and S");
+            send("Wrong input, use Player 1 controls: W and S");
             break;
         case SDLK_k:
-            send("Wrong input, pleae use Player 1 controls: W and S");
+            send("Wrong input, use Player 1 controls: W and S");
             break;
         }
     }
@@ -154,10 +154,10 @@ void MyGame::input(SDL_Event& event) {
             send(event.type == SDL_KEYDOWN ? "K_DOWN" : "K_UP");
             break;
         case SDLK_w:
-            send("Wrong input, pleae use Player 2 controls: I and K");
+            send("Wrong input, use Player 2 controls: I and K");
             break;
         case SDLK_s:
-            send("Wrong input, pleae use Player 2 controls: I and K");
+            send("Wrong input, use Player 2 controls: I and K");
             break;
         }
     }
